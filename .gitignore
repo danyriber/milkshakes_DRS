@@ -1,0 +1,101 @@
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# IDEs y editores
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.code-workspace
+.vim/
+
+# Node.js (si se usa npm)
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+yarn.lock
+
+# PHP Composer
+vendor/
+composer.lock
+.php_cs.cache
+
+# Directorios de logs y temporales
+logs/**
+temp/**
+tmp/**
+cache/**
+*.log
+
+# Archivos de sesión PHP
+/var/lib/php/sessions/*
+
+# Base de datos
+*.db
+*.sqlite
+*.sqlite3
+database.sql
+mysql_dump.sql
+
+# Archivos de configuración sensibles
+.env
+.env.local
+.env.*.local
+config/database.php
+config/secrets.php
+
+# Certificados SSL (desarrollo)
+*.pem
+*.crt
+*.key
+!.gitkeep
+
+# Directorios de compilación
+build/
+dist/
+out/
+
+# Archivos de respaldo
+*.bak
+*.backup
+*~
+*.orig
+
+# Docker
+.dockerignore
+.docker/
+
+# IDE específicas
+.vscode/settings.json
+.idea/workspace.xml
+.idea/modules.xml
+
+# Archivos generados
+.project
+.pydevproject
+.settings
+
+# Windows
+desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+.gvfs/
+
+# Archivos locales de prueba
+test_local/
+test_data/
+debug/
+
+# Directorios no versionados
+uploads/
+downloads/
+backups/

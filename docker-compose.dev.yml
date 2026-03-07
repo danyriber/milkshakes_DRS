@@ -1,0 +1,53 @@
+version: '3.8'
+
+# Configuración de desarrollo con debug y herramientas adicionales
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: milkshakes_drs_dev
+    image: milkshakes-drs:dev
+    ports:
+      - "80:80"
+      - "443:443"
+      - "9000:9000"  # Xdebug (opcional)
+    volumes:
+      # Sincronizar código en tiempo real
+      - .:/var/www/html
+      - ./config/apache-vhost.conf:/etc/apache2/sites-available/milkshakesdrs.conf
+      - ./logs:/var/www/html/logs
+      # Logs de Apache accesibles desde el host
+      - ./docker/logs:/var/log/apache2
+    environment:
+      - PHP_XDEBUG_ENABLED=1
+      - XDEBUG_CONFIG=remote_host=host.docker.internal
+      - DEBUG=true
+    networks:
+      - milkshakes_network
+    restart: unless-stopped
+    
+    # Comando alternativo para desarrollo con más verbosidad
+    command: > 
+      bash -c "a2enmod rewrite deflate expires headers &&
+               apache2-foreground"
+
+  # Herramienta para análisis de código
+  # phpstan:
+  #   image: phpstan/phpstan:latest
+  #   volumes:
+  #     - .:/app
+  #   working_dir: /app
+  #   command: analyze --level=5 *.php
+
+  # Linter de código
+  # php-cs-fixer:
+  #   image: cytopia/php-cs-fixer
+  #   volumes:
+  #     - .:/work
+  #   working_dir: /work
+  #   command: fix --allow-risky=yes
+
+networks:
+  milkshakes_network:
+    driver: bridge

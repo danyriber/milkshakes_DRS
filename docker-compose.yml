@@ -1,0 +1,76 @@
+version: '3.8'
+
+services:
+  # Servicio principal - Apache + PHP
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: milkshakes_drs_web
+    image: milkshakes-drs:latest
+    ports:
+      # Puerto externo:Puerto interno del contenedor
+      - "80:80"
+      - "443:443"
+    volumes:
+      # Mapear el código fuente para cambios en vivo
+      - .:/var/www/html
+      # Mapear configuración de Apache
+      - ./config/apache-vhost.conf:/etc/apache2/sites-available/milkshakesdrs.conf
+      # Mapear logs del contenedor al host
+      - ./logs:/var/www/html/logs
+    environment:
+      - PHP_IDE_CONFIG=serverName=localhost
+      - APACHE_RUN_USER=www-data
+      - APACHE_RUN_GROUP=www-data
+      - APACHE_LOG_DIR=/var/log/apache2
+    networks:
+      - milkshakes_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/verificar.php"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+
+  # Servicio MySQL (opcional - para versión con BD)
+  # db:
+  #   image: mysql:5.7
+  #   container_name: milkshakes_drs_db
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: root
+  #     MYSQL_DATABASE: milkshakes
+  #     MYSQL_USER: admin
+  #     MYSQL_PASSWORD: password123
+  #   volumes:
+  #     - ./database:/var/lib/mysql
+  #   ports:
+  #     - "3306:3306"
+  #   networks:
+  #     - milkshakes_network
+  #   restart: unless-stopped
+
+  # Servicio phpMyAdmin (opcional - para gestionar BD)
+  # phpmyadmin:
+  #   image: phpmyadmin:latest
+  #   container_name: milkshakes_drs_phpmyadmin
+  #   environment:
+  #     PMA_HOST: db
+  #     PMA_USER: admin
+  #     PMA_PASSWORD: password123
+  #   ports:
+  #     - "8081:80"
+  #   depends_on:
+  #     - db
+  #   networks:
+  #     - milkshakes_network
+  #   restart: unless-stopped
+
+networks:
+  milkshakes_network:
+    driver: bridge
+
+volumes:
+  # Volumen para persistencia de datos (si se agrega BD)
+  # db_data:

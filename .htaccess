@@ -1,0 +1,85 @@
+# Configuración .htaccess para Apache
+# Reescrituras y seguridad para Milkshakes DRS
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # Redirigir www a no-www (opcional)
+    RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+    RewriteRule ^(.*)$ http://%1/$1 [R=301,L]
+    
+    # Forzar HTTPS (descomentar si tienes certificado SSL)
+    # RewriteCond %{HTTPS} off
+    # RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+    
+    # Reescrituras de URL limpias
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ index.php?path=$1 [QSA,L]
+</IfModule>
+
+# Denegar acceso directo a archivos de configuración
+<FilesMatch "\.(env|config\.php|\.git)">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Permitir índices en directorios específicos
+<Directory /images>
+    Options +Indexes
+</Directory>
+
+# Proteger directorios vs ataques
+<Directory /config>
+    Deny from all
+</Directory>
+
+# Prevenir listado de directorios
+<IfModule mod_autoindex.c>
+    Options -Indexes
+</IfModule>
+
+# Encabezados de seguridad
+<IfModule mod_headers.c>
+    # Prevenir ataques XSS
+    Header set X-XSS-Protection "1; mode=block"
+    
+    # Prevenir clickjacking
+    Header set X-Frame-Options "SAMEORIGIN"
+    
+    # MIME type sniffing
+    Header set X-Content-Type-Options "nosniff"
+    
+    # Referrer Policy
+    Header set Referrer-Policy "no-referrer-when-downgrade"
+</IfModule>
+
+# Compresión de contenido
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml
+    AddOutputFilterByType DEFLATE text/css text/javascript
+    AddOutputFilterByType DEFLATE application/javascript application/x-javascript
+</IfModule>
+
+# Control de caché
+<IfModule mod_expires.c>
+    ExpiresActive On
+    
+    # Archivos estáticos: 1 año
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    
+    # CSS y JavaScript: 1 mes
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType text/javascript "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    
+    # HTML: 1 semana
+    ExpiresByType text/html "access plus 1 week"
+    
+    # Default
+    ExpiresDefault "access plus 2 days"
+</IfModule>
