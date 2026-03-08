@@ -1,0 +1,30 @@
+{
+  "name": "cms-service",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Headless CMS Strapi para Milkshakes DRS",
+  "scripts": {
+    "develop": "strapi develop",
+    "start": "strapi start",
+    "build": "node build.js",
+    "strapi": "strapi",
+    "vercel-build": "npm run build",
+    "setup": "node setup-strapi.js"
+  },
+  "devDependencies": {},
+  "dependencies": {
+    "@strapi/strapi": "^4.24.0",
+    "@strapi/plugin-users-permissions": "^4.24.0",
+    "@strapi/plugin-i18n": "^4.24.0",
+    "better-sqlite3": "^9.2.2",
+    "pg": "^8.11.3",
+    "pg-connection-string": "^2.6.2"
+  },
+  "engines": {
+    "node": ">=18.0.0 <=20.x.x",
+    "npm": ">=9.0.0"
+  },
+  "strapi": {
+    "uuid": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+  }
+}

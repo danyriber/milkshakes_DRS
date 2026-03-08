@@ -1,0 +1,174 @@
+/* Home.css - Minimalist Zara-inspired design */
+.home {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  color: #333;
+}
+
+.hero {
+  position: relative;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.hero-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+}
+
+.hero-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.8);
+}
+
+.hero-content {
+  text-align: center;
+  color: white;
+  z-index: 1;
+}
+
+.hero-content h1 {
+  font-size: 4rem;
+  font-weight: 300;
+  margin-bottom: 1rem;
+  letter-spacing: 0.1em;
+}
+
+.hero-content p {
+  font-size: 1.5rem;
+  font-weight: 200;
+  margin-bottom: 3rem;
+  letter-spacing: 0.05em;
+}
+
+.btn-minimal {
+  display: inline-block;
+  padding: 1rem 2rem;
+  border: 1px solid white;
+  background: transparent;
+  color: white;
+  text-decoration: none;
+  font-size: 1rem;
+  font-weight: 300;
+  letter-spacing: 0.1em;
+  transition: all 0.3s ease;
+}
+
+.btn-minimal:hover {
+  background: white;
+  color: #333;
+}
+
+.collection {
+  padding: 5rem 0;
+  background: #fafafa;
+}
+
+.collection-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.collection-item {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.collection-item:hover {
+  transform: scale(1.05);
+}
+
+.collection-item img {
+  width: 100%;
+  height: 400px;
+  object-fit: cover;
+  display: block;
+}
+
+.collection-item span {
+  position: absolute;
+  bottom: 2rem;
+  left: 2rem;
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 300;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.featured-products {
+  padding: 5rem 2rem;
+  background: #fafafa;
+  text-align: center;
+}
+
+.featured-products h2 {
+  font-size: 2.5rem;
+  margin-bottom: 3rem;
+  font-weight: 300;
+}
+
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.product-card {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+}
+
+.product-card img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.product-card h3 {
+  font-size: 1.25rem;
+  margin: 1rem;
+  font-weight: 500;
+}
+
+.product-card p {
+  color: #666;
+  margin: 0 1rem 1rem;
+  line-height: 1.5;
+}
+
+.price {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333;
+  margin: 1rem;
+}
+
+.loading {
+  text-align: center;
+  padding: 4rem;
+  font-size: 1.5rem;
+}

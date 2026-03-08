@@ -1,53 +1,217 @@
 version: '3.8'
 
 services:
-  # Servicio principal - Apache + PHP
-  web:
+  # Base de datos PostgreSQL
+  db:
     build:
-      context: .
+      context: ./database
       dockerfile: Dockerfile
-    container_name: milkshakes_drs_web
-    image: milkshakes-drs:latest
-    ports:
-      # Puerto externo:Puerto interno del contenedor
-      - "80:80"
-      - "443:443"
-    volumes:
-      # Mapear el código fuente para cambios en vivo
-      - .:/var/www/html
-      # Mapear configuración de Apache
-      - ./config/apache-vhost.conf:/etc/apache2/sites-available/milkshakesdrs.conf
-      # Mapear logs del contenedor al host
-      - ./logs:/var/www/html/logs
+    container_name: milkshakes_drs_db
     environment:
-      - PHP_IDE_CONFIG=serverName=localhost
-      - APACHE_RUN_USER=www-data
-      - APACHE_RUN_GROUP=www-data
-      - APACHE_LOG_DIR=/var/log/apache2
+      POSTGRES_DB: milkshakes_drs
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password123
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
     networks:
       - milkshakes_network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost/verificar.php"]
+      test: ["CMD-SHELL", "pg_isready -U admin -d milkshakes_drs"]
       interval: 30s
       timeout: 3s
       retries: 3
       start_period: 5s
 
-  # Servicio MySQL (opcional - para versión con BD)
-  # db:
-  #   image: mysql:5.7
-  #   container_name: milkshakes_drs_db
-  #   environment:
-  #     MYSQL_ROOT_PASSWORD: root
-  #     MYSQL_DATABASE: milkshakes
-  #     MYSQL_USER: admin
-  #     MYSQL_PASSWORD: password123
-  #   volumes:
-  #     - ./database:/var/lib/mysql
-  #   ports:
-  #     - "3306:3306"
-  #   networks:
+  # Microservicio de productos
+  product-service:
+    build:
+      context: ./services/product-service
+      dockerfile: Dockerfile
+    container_name: milkshakes_drs_product_service
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: milkshakes_drs
+      DB_USER: admin
+      DB_PASSWORD: password123
+    ports:
+      - "3001:3001"
+    networks:
+      - milkshakes_network
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Microservicio de carrito
+  cart-service:
+    build:
+      context: ./services/cart-service
+      dockerfile: Dockerfile
+    container_name: milkshakes_drs_cart_service
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: milkshakes_drs
+      DB_USER: admin
+      DB_PASSWORD: password123
+    ports:
+      - "3002:3002"
+    networks:
+      - milkshakes_network
+    depends_on:
+      db:
+        condition: service_healthy
+      product-service:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Microservicio de usuarios
+  user-service:
+    build:
+      context: ./services/user-service
+      dockerfile: Dockerfile
+    container_name: milkshakes_drs_user_service
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: milkshakes_drs
+      DB_USER: admin
+      DB_PASSWORD: password123
+      JWT_SECRET: your_jwt_secret_key_here
+    ports:
+      - "3003:3003"
+    networks:
+      - milkshakes_network
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Microservicio de pedidos
+  order-service:
+    build:
+      context: ./services/order-service
+      dockerfile: Dockerfile
+    container_name: milkshakes_drs_order_service
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: milkshakes_drs
+      DB_USER: admin
+      DB_PASSWORD: password123
+    ports:
+      - "3004:3004"
+    networks:
+      - milkshakes_network
+    depends_on:
+      db:
+        condition: service_healthy
+      cart-service:
+        condition: service_healthy
+      user-service:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: ./services/api-gateway
+      dockerfile: Dockerfile
+    container_name: milkshakes_drs_api_gateway
+    ports:
+      - "3000:3000"
+    networks:
+      - milkshakes_network
+    depends_on:
+      - product-service
+      - cart-service
+      - user-service
+      - order-service
+    restart: unless-stopped
+
+  # Frontend React
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: milkshakes_drs_frontend
+    ports:
+      - "5173:5173"
+    networks:
+      - milkshakes_network
+    depends_on:
+      - api-gateway
+    restart: unless-stopped
+
+  # CMS Strapi
+  cms:
+    build:
+      context: ./cms-service
+      dockerfile: Dockerfile
+    container_name: milkshakes_drs_cms
+    environment:
+      DATABASE_CLIENT: postgres
+      # Apunta a "db" para reutilizar la base de datos principal:
+      # DATABASE_HOST: db
+      # DATABASE_NAME: milkshakes_drs
+      # DATABASE_USERNAME: admin
+      # DATABASE_PASSWORD: password123
+      DATABASE_HOST: cms_db
+      DATABASE_PORT: 5432
+      DATABASE_NAME: strapi
+      DATABASE_USERNAME: strapi
+      DATABASE_PASSWORD: strapi_password
+      NODE_ENV: development
+      HOST: 0.0.0.0
+      PORT: 1337
+      ADMIN_JWT_SECRET: your_admin_jwt_secret_key_here
+      TRANSFER_TOKEN_SALT: your_transfer_token_salt_here
+      APP_KEYS: key1,key2,key3,key4
+      PUBLIC_URL: http://localhost:1337
+    ports:
+      - "1337:1337"
+    networks:
+      - milkshakes_network
+    depends_on:
+      cms_db:
+        condition: service_healthy
+    volumes:
+      - ./cms-service/src:/app/src
+    restart: unless-stopped
+
+  # Base de datos PostgreSQL para CMS Strapi
+  cms_db:
+    image: postgres:15-alpine
+    container_name: milkshakes_drs_cms_db
+    environment:
+      POSTGRES_DB: strapi
+      POSTGRES_USER: strapi
+      POSTGRES_PASSWORD: strapi_password
+    ports:
+      - "5433:5432"
+    volumes:
+      - cms_db_data:/var/lib/postgresql/data
+    networks:
+      - milkshakes_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U strapi -d strapi"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+
+volumes:
+  db_data:
+  cms_db_data:
+
+networks:
+  milkshakes_network:
+    driver: bridge
   #     - milkshakes_network
   #   restart: unless-stopped
 

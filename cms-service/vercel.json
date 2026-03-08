@@ -1,0 +1,23 @@
+{
+  "buildCommand": "npm run vercel-build",
+  "devCommand": "npm run develop",
+  "installCommand": "npm install",
+  "framework": "other",
+  "nodeVersion": "18.x",
+  "outputDirectory": "dist",
+  "functions": {
+    "dist/index.js": {
+      "runtime": "nodejs18.x",
+      "maxDuration": 30
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/dist/index.js"
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  }
+}

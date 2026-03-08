@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: strapi-cms
+  labels:
+    app: strapi-cms
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: strapi-cms
+  template:
+    metadata:
+      labels:
+        app: strapi-cms
+    spec:
+      containers:
+      - name: strapi
+        image: milkshakes_drs_cms:latest  # build and push your image to a registry
+        ports:
+        - containerPort: 1337
+        env:
+        - name: DATABASE_CLIENT
+          value: "postgres"
+        - name: DATABASE_HOST
+          value: "cms-db"
+        - name: DATABASE_PORT
+          value: "5432"
+        - name: DATABASE_NAME
+          value: "strapi"
+        - name: DATABASE_USERNAME
+          value: "strapi"
+        - name: DATABASE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: strapi-db-secret
+              key: password
+        - name: NODE_ENV
+          value: "production"
+        - name: HOST
+          value: "0.0.0.0"
+        - name: PORT
+          value: "1337"
+        - name: APP_KEYS
+          valueFrom:
+            secretKeyRef:
+              name: strapi-app-keys
+              key: keys
+        - name: ADMIN_JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: strapi-admin-jwt
+              key: secret
+        - name: TRANSFER_TOKEN_SALT
+          valueFrom:
+            secretKeyRef:
+              name: strapi-transfer-salt
+              key: salt
+        - name: PUBLIC_URL
+          value: "https://cms.yourdomain.com"
+        volumeMounts:
+        - name: uploads
+          mountPath: /app/public/uploads
+      volumes:
+      - name: uploads
+        persistentVolumeClaim:
+          claimName: strapi-uploads-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: strapi-cms-service
+spec:
+  selector:
+    app: strapi-cms
+  ports:
+  - protocol: TCP
+    port: 1337
+    targetPort: 1337
+  type: ClusterIP

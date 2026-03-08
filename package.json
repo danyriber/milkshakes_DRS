@@ -1,0 +1,49 @@
+{
+  "name": "milkshakes-drs-monorepo",
+  "version": "1.0.0",
+  "description": "Milkshakes DRS - Arquitectura de Microservicios con Frontend React, API Gateway y Servicios Backend",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev --workspace=frontend\" \"npm run dev --workspace=services/api-gateway\" \"npm run dev --workspace=services/product-service\" \"npm run dev --workspace=services/cart-service\" \"npm run dev --workspace=services/order-service\" \"npm run dev --workspace=services/user-service\"",
+    "dev:frontend": "npm run dev --workspace=frontend",
+    "dev:services": "concurrently \"npm run dev --workspace=services/api-gateway\" \"npm run dev --workspace=services/product-service\" \"npm run dev --workspace=services/cart-service\" \"npm run dev --workspace=services/order-service\" \"npm run dev --workspace=services/user-service\"",
+    "build": "npm run build --workspace=frontend",
+    "start": "concurrently \"npm start --workspace=services/api-gateway\" \"npm start --workspace=services/product-service\" \"npm start --workspace=services/cart-service\" \"npm start --workspace=services/order-service\" \"npm start --workspace=services/user-service\"",
+    "install:all": "npm install",
+    "clean": "npm run clean --workspaces",
+    "test": "npm run test --workspaces",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:dev": "docker-compose -f docker-compose.dev.yml up -d",
+    "cms:dev": "npm run develop --workspace=cms-service",
+    "cms:build": "npm run build --workspace=cms-service"
+  },
+  "workspaces": [
+    "frontend",
+    "services/*",
+    "cms-service"
+  ],
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  },
+  "keywords": [
+    "microservices",
+    "react",
+    "nodejs",
+    "api-gateway",
+    "strapi",
+    "docker",
+    "kubernetes"
+  ],
+  "author": "Milkshakes DRS Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/danyriber/milkshakes_DRS.git"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}

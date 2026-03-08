@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: strapi-cms-db
+  labels:
+    app: strapi-cms-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: strapi-cms-db
+  template:
+    metadata:
+      labels:
+        app: strapi-cms-db
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:15-alpine
+        env:
+        - name: POSTGRES_DB
+          value: "strapi"
+        - name: POSTGRES_USER
+          value: "strapi"
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: strapi-db-secret
+              key: password
+        ports:
+        - containerPort: 5432
+        volumeMounts:
+        - name: db-data
+          mountPath: /var/lib/postgresql/data
+      volumes:
+      - name: db-data
+        persistentVolumeClaim:
+          claimName: strapi-db-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: strapi-cms-db-service
+spec:
+  selector:
+    app: strapi-cms-db
+  ports:
+  - protocol: TCP
+    port: 5432
+    targetPort: 5432
+  type: ClusterIP

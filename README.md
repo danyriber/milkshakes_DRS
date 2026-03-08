@@ -1,27 +1,151 @@
-# 🥤 Milkshakes DRS - Sistema de Tienda Web Completo
+# 🥤 Milkshakes DRS - Arquitectura de Microservicios
 
 **Proyecto Académico de Administración de Sistemas en Servidor Web**
 
-Este proyecto implementa una solución web completa para una tienda local de milkshakes, demostrando arquitectura cliente-servidor, tecnologías de servidor web (Apache), y buenas prácticas de seguridad.
+Este proyecto implementa una **arquitectura de microservicios** completa para una tienda de milkshakes, demostrando tecnologías modernas de desarrollo web, orquestación de contenedores y comunicación entre servicios.
 
 ---
 
 ## 📋 Descripción Ejecutiva del Proyecto
 
-Milkshakes DRS es una **aplicación web dinámica** desarrollada para:
+Milkshakes DRS es una **aplicación web reactiva** basada en microservicios que incluye:
 
-- ✅ Demostrar arquitectura cliente-servidor
-- ✅ Implementar un catálogo de productos dinámico
-- ✅ Gestionar carrito de compras con sesiones
-- ✅ Procesar formularios de contacto con validación
-- ✅ Implementar seguridad a múltiples niveles
-- ✅ Documentar todo el ciclo de vida del protocolo HTTP
+- ✅ **Arquitectura de Microservicios**: Servicios independientes y escalables
+- ✅ **Frontend Reactivo**: Interfaz de usuario moderna con React.js
+- ✅ **Base de Datos Relacional**: PostgreSQL con esquemas optimizados
+- ✅ **API Gateway**: Enrutamiento centralizado de solicitudes
+- ✅ **Orquestación**: Docker Compose para gestión de contenedores
+- ✅ **Comunicación**: APIs REST entre microservicios
 
 **Tecnologías:**
-- 🖥️ **Servidor**: Apache 2.4+ con mod_php
-- 🐘 **Backend**: PHP 7.4+
-- 🎨 **Frontend**: HTML5, CSS3, Responsive Design
-- 🔒 **Seguridad**: Validación/Sanitización, HTTPS, Firewall
+- 🐳 **Contenedores**: Docker & Docker Compose
+- ⚛️ **Frontend**: React.js con Vite
+- 🟢 **Backend**: Node.js con Express.js
+- 🐘 **Base de Datos**: PostgreSQL
+- 🔄 **API Gateway**: Proxy reverso con Express
+- 📡 **Comunicación**: REST APIs
+
+---
+
+## 🏗️ Arquitectura de Microservicios
+
+```
+┌─────────────────┐    ┌─────────────────┐
+│   Frontend      │────│   API Gateway   │
+│   (React)       │    │   (Express)     │
+└─────────────────┘    └─────────────────┘
+                              │
+                    ┌─────────┼─────────┐
+                    │         │         │
+            ┌───────▼───┐ ┌───▼───┐ ┌───▼───┐
+            │ Product   │ │ Cart  │ │ User  │
+            │ Service   │ │ Service│ │ Service│
+            └───────────┘ └───────┘ └───────┘
+                    │         │         │
+                    └─────────┼─────────┘
+                              │
+                       ┌──────▼──────┐
+                       │ Order       │
+                       │ Service     │
+                       └─────────────┘
+                              │
+                       ┌──────▼──────┐
+                       │ PostgreSQL  │
+                       │ Database    │
+                       └─────────────┘
+```
+
+### Microservicios Implementados:
+
+1. **Product Service** (Puerto 3001)
+   - Gestión del catálogo de productos
+   - CRUD completo de productos
+   - Validación de stock
+
+2. **Cart Service** (Puerto 3002)
+   - Gestión de carritos de compra
+   - Comunicación con Product Service
+   - Cálculos de totales
+
+3. **User Service** (Puerto 3003)
+   - Autenticación y registro de usuarios
+   - Gestión de perfiles
+   - JWT para sesiones seguras
+
+4. **Order Service** (Puerto 3004)
+   - Procesamiento de pedidos
+   - Integración con servicios de carrito y usuario
+   - Historial de compras
+
+5. **API Gateway** (Puerto 3000)
+   - Punto de entrada único
+   - Enrutamiento a microservicios
+   - Balanceo de carga básico
+
+6. **Frontend** (Puerto 5173)
+   - Interfaz reactiva con React.js
+   - Consumo de APIs REST
+   - Gestión de estado del carrito
+
+7. **CMS Service - Strapi** (Puerto 1337) **[NUEVO]**
+   - Headless CMS para gestionar contenido dinámico
+   - Admin panel intuitivo
+   - APIs REST automáticas
+   - Soporte para multiidioma (i18n)
+   - Almacenamiento de archivos (imágenes, documentos)
+   - Webhooks para sincronización con otros servicios
+   - Despliegue en Vercel preparado
+
+---
+
+## 🚀 Inicio Rápido
+
+### Prerrequisitos
+- Docker y Docker Compose instalados
+- Node.js 18+ (para desarrollo local)
+- Puerto 3000-3004 y 5173 disponibles
+
+### Despliegue Completo
+
+```bash
+# Clonar el repositorio
+git clone <repository-url>
+cd milkshakes_DRS
+
+# Construir e iniciar todos los servicios
+docker-compose up --build
+
+# Acceder a la aplicación
+# Frontend: http://localhost:5173
+# API Gateway: http://localhost:3000
+# Base de datos: localhost:5432
+# CMS Strapi: http://localhost:1337/admin [NUEVO]
+```
+
+### Notas opcionales
+
+- Si prefieres que el CMS use la **misma base de datos** que los servicios, ajusta las variables en `.env` como se describe en `cms-service/INTEGRACION.md`.
+- Para roles y permisos en el CMS, revisa el apartado **Roles y Autenticación** en el mismo archivo.
+- Manifiestos de Kubernetes están en `k8s/`; despliega con `kubectl apply -f k8s/`.
+
+
+### Desarrollo Local
+
+```bash
+# Instalar dependencias de cada servicio
+cd services/product-service && npm install
+cd ../cart-service && npm install
+# ... repetir para cada servicio
+
+cd ../../frontend && npm install
+
+# Iniciar servicios individualmente
+cd services/product-service && npm start
+# En terminales separadas para cada servicio
+
+# Iniciar frontend
+cd frontend && npm run dev
+```
 
 ---
 
@@ -29,25 +153,205 @@ Milkshakes DRS es una **aplicación web dinámica** desarrollada para:
 
 ```
 milkshakes_DRS/
-├── index.php                 # Página principal (HOME)
-├── productos.php              # Catálogo dinámico de productos
-├── carrito.php               # Gestión del carrito de compras
-├── contacto.php              # Formulario de contacto
-├── .htaccess                 # Configuración Apache (reescrituras)
-├── css/
-│   └── style.css            # Estilos (responsive, animaciones)
-├── js/
-│   └── app.js               # JavaScript (interactividad)
-├── images/
-│   └── *.png                # Imágenes de productos
-├── config/
-│   ├── apache-vhost.conf    # Configuración VirtualHost
-│   └── nginx.conf           # Configuración alternativa (Nginx)
-├── logs/
-│   └── contactos.log        # Registros de formularios
-│
+├── services/                 # Microservicios backend
+│   ├── product-service/      # Servicio de productos
+│   ├── cart-service/         # Servicio de carrito
+│   ├── user-service/         # Servicio de usuarios
+│   ├── order-service/        # Servicio de pedidos
+│   └── api-gateway/          # API Gateway
+├── cms-service/              # CMS Strapi [NUEVO]
+│   ├── config/               # Configuración Strapi
+│   ├── src/                  # Código Strapi
+│   ├── Dockerfile            # Contenedor Strapi
+│   ├── package.json
+│   ├── README.md             # Guía del CMS
+│   ├── INTEGRACION.md        # Cómo integrar con otros servicios
+│   └── VERCEL_DEPLOYMENT.md  # Guía de despliegue en Vercel
+├── frontend/                 # Frontend React
+│   ├── src/
+│   │   ├── components/       # Componentes React
+│   │   ├── pages/           # Páginas de la aplicación
+│   │   └── App.jsx          # App principal
+│   └── Dockerfile
+├── database/                 # Configuración de BD
+│   ├── init.sql             # Esquema inicial
+│   └── Dockerfile
+├── docker-compose.yml        # Orquestación completa
+├── docker-compose.dev.yml    # Configuración desarrollo
+├── CMS_STRAPI_SETUP.md      # Resumen de setup CMS [NUEVO]
 ├── README.md                # Este archivo
-├── ARQUITECTURA.md          # Análisis técnico completo
+├── ARQUITECTURA.md          # Documentación técnica
+└── INSTALACION.md           # Guía de instalación
+```
+
+---
+
+## 🔧 Configuración y Variables de Entorno
+
+### Variables de Base de Datos
+```env
+DB_HOST=db
+DB_PORT=5432
+DB_NAME=milkshakes_drs
+DB_USER=admin
+DB_PASSWORD=password123
+```
+
+### Variables de Servicios
+```env
+JWT_SECRET=your_jwt_secret_key_here
+```
+
+---
+
+## 🎭 CMS Strapi - Gestión de Contenido Dinámico
+
+El proyecto ahora incluye **Strapi**, un **Headless CMS** que permite gestionar contenido dinámico sin tocar código.
+
+### Características del CMS
+
+- **Admin Panel Intuitivo**: Interfaz web para crear/editar contenido
+- **API REST Automática**: Generación automática de endpoints
+- **Plugins Incluidos**:
+  - 👥 Users & Permissions (autenticación y roles)
+  - 🌍 Internacionalización (i18n) - soporte multiidioma
+  - 📁 Media Manager (gestión de imágenes y archivos)
+- **Webhooks**: Sincronización automática con otros servicios
+- **Vercel Ready**: Preparado para despliegue en Vercel
+
+### Uso Rápido
+
+```bash
+# Acceder al panel admin tras levantar docker-compose
+# http://localhost:1337/admin
+
+# Crear tu primer "Content Type"
+# 1. Click en "Create new Collection Type"
+# 2. Añade campos (nombre, descripción, imagen, etc.)
+# 3. Genera endpoints REST automáticamente
+```
+
+### Ejemplos de Colecciones que Podrías Crear
+
+- **Blog**: Posts con título, contenido, autor, fecha
+- **FAQ**: Preguntas y respuestas frecuentes
+- **Testimonios**: Opiniones de clientes con rating
+- **Configuración Global**: Datos de la empresa, horarios, etc.
+
+### Ejemplos de Integración
+
+#### Consumir CMS desde Frontend
+```javascript
+// React component consumiendo API del CMS
+const [posts, setPosts] = useState([]);
+
+useEffect(() => {
+  fetch('http://localhost:1337/api/posts')
+    .then(r => r.json())
+    .then(data => setPosts(data.data));
+}, []);
+```
+
+#### Sincronizar con Product Service
+El CMS puede notificar cambios al Product Service mediante webhooks, permitiendo sincronización automática de contenido enriquecido (descripciones largas, SEO metadata, etc.).
+
+### Documentación CMS
+
+Para información detallada sobre el CMS, consulta:
+- **[CMS_STRAPI_SETUP.md](CMS_STRAPI_SETUP.md)** - Guía de configuración y primeros pasos
+- **[cms-service/README.md](cms-service/README.md)** - Documentación técnica
+- **[cms-service/INTEGRACION.md](cms-service/INTEGRACION.md)** - Cómo integrar con otros servicios
+- **[cms-service/VERCEL_DEPLOYMENT.md](cms-service/VERCEL_DEPLOYMENT.md)** - Despliegue en Vercel
+
+---
+
+## 📊 Endpoints de API
+
+### Product Service
+- `GET /api/products` - Listar productos
+- `GET /api/products/:id` - Obtener producto específico
+- `POST /api/products` - Crear producto
+- `PUT /api/products/:id` - Actualizar producto
+- `DELETE /api/products/:id` - Eliminar producto
+
+### Cart Service
+- `GET /api/cart/:sessionId` - Obtener carrito
+- `POST /api/cart/:sessionId/items` - Agregar item
+- `PUT /api/cart/:sessionId/items/:itemId` - Actualizar cantidad
+- `DELETE /api/cart/:sessionId/items/:itemId` - Remover item
+
+### User Service
+- `POST /api/auth/register` - Registro de usuario
+- `POST /api/auth/login` - Inicio de sesión
+- `GET /api/users/profile` - Perfil de usuario
+
+### Order Service
+- `POST /api/orders` - Crear pedido
+- `GET /api/orders/:userId` - Obtener pedidos del usuario
+
+---
+
+## 🧪 Pruebas y Validación
+
+### Health Checks
+Cada servicio incluye endpoints de health check:
+- `GET /health` - Estado del servicio
+
+### Verificación de Funcionalidad
+```bash
+# Verificar que todos los servicios estén ejecutándose
+docker-compose ps
+
+# Ver logs de un servicio específico
+docker-compose logs product-service
+
+# Acceder a la base de datos
+docker-compose exec db psql -U admin -d milkshakes_drs
+```
+
+---
+
+## 📚 Documentación Adicional
+
+- **[ARQUITECTURA.md](ARQUITECTURA.md)** - Análisis técnico detallado
+- **[INSTALACION.md](INSTALACION.md)** - Guía de instalación paso a paso
+- **[DIAGRAMAS.md](DIAGRAMAS.md)** - Diagramas de arquitectura y flujo
+- **[ENTREGA.md](ENTREGA.md)** - Requisitos académicos cumplidos
+
+---
+
+## 🎯 Requisitos Académicos Cumplidos
+
+- ✅ Arquitectura Cliente-Servidor
+- ✅ Tipología Web Dinámica
+- ✅ Selección Tecnológica (Apache/Node.js)
+- ✅ Protocolo HTTP/HTTPS
+- ✅ Seguridad Implementada
+- ✅ Documentación Completa
+- ✅ Microservicios Modernos
+- ✅ Orquestación con Docker
+- ✅ Base de Datos Relacional
+- ✅ Frontend Reactivo
+
+---
+
+## 🤝 Contribución
+
+1. Fork el proyecto
+2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
+3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
+4. Push a la rama (`git push origin feature/AmazingFeature`)
+5. Abre un Pull Request
+
+---
+
+## 📄 Licencia
+
+Este proyecto es para fines académicos - Ver términos en el curso correspondiente.
+
+---
+
+**Desarrollado con ❤️ para el curso de Administración de Sistemas en Servidor Web**
 │   ├─ Análisis de Arquitectura
 │   ├─ Tipología de Web
 │   ├─ Selección Tecnológica

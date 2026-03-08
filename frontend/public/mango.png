@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Fondo degradado mango -->
+  <defs>
+    <linearGradient id="grad4" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FF8C00;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Vaso -->
+  <ellipse cx="100" cy="50" rx="35" ry="15" fill="none" stroke="white" stroke-width="2"/>
+  <path d="M 65 50 L 60 150 Q 100 170 140 150 L 135 50" fill="url(#grad4)" stroke="white" stroke-width="2"/>
+  <ellipse cx="100" cy="150" rx="40" ry="20" fill="#FF8C00" stroke="white" stroke-width="2"/>
+  
+  <!-- Crema tipo mango -->
+  <ellipse cx="100" cy="45" rx="35" ry="12" fill="#FFFFE0"/>
+  
+  <!-- Decoración tropical -->
+  <circle cx="85" cy="85" r="4" fill="#FFA500" opacity="0.6"/>
+  <circle cx="115" cy="95" r="4" fill="#FFA500" opacity="0.6"/>
+  <circle cx="100" cy="110" r="3" fill="#FF6347" opacity="0.5"/>
+  
+  <!-- Brillo -->
+  <ellipse cx="75" cy="65" rx="8" ry="15" fill="white" opacity="0.3"/>
+</svg>
